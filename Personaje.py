@@ -1,9 +1,17 @@
+#CLASE PERSONAJE
+
 import pygame
+import Constantes
 
 class Personaje():
     def __init__(self, x, y):
-        self.forma = pygame.Rect(0,0,20,20)
+        self.forma = pygame.Rect(0, 0, Constantes.ANCHO_PERSONAJE,
+                                        Constantes.ALTO_PERSONAJE)
         self.forma.center = (x,y)
 
-        def dibujar(self, interfaz):
-            pygame.draw.rect(interfaz, (255, 255,0), self.forma)
+    def dibujar(self, interfaz):
+        pygame.draw.rect(interfaz, (255, 250, 0),  self.forma)
+
+    def movimineto(self, delta_x, delta_y):
+        self.forma.x = self.forma.x + delta_x
+        self.forma.y = self.forma.y + delta_y
