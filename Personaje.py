@@ -37,4 +37,4 @@ class Personaje():
     def dibujar(self, interfaz):
         imagen_flip = pygame.transform.flip(self.image, self.flip, False)
         interfaz.blit(imagen_flip, self.forma)
-        pygame.draw.rect(interfaz, Constantes.COLOR_PERSONAJE,  self.forma, 1)
+        #pygame.draw.rect(interfaz, Constantes.COLOR_PERSONAJE,  self.forma, 1)
