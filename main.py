@@ -88,6 +88,8 @@ while run == True:
     bala = pistola.update(Jugador)
     if bala:
         grupo_balas.add(bala)
+    for bala in grupo_balas:
+        bala.update()
 
         print(grupo_balas)
 
