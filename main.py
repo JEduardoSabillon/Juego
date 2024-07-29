@@ -4,6 +4,7 @@ import pygame
 import Constantes
 from Personaje import Personaje
 from weapons import Weapon
+from textos import DamageText
 import os
 
 #FUNCIONES:
@@ -27,6 +28,10 @@ pygame.init()
 ventana = pygame.display.set_mode((Constantes.ANCHO_VENTANA,
                                    Constantes.ALTO_VENTANA))
 pygame.display.set_caption("Mi Primer Juego")
+
+
+#FUENTES
+font = pygame.font.Font("assets//fonts//mago3.ttf", 25)
 
 
 #IMPORTAR IMAGENES
@@ -82,7 +87,9 @@ lista_enemigos.append(honguito_2)
 pistola = Weapon(imagen_pistola, imagen_balas)
 
 #CREAR UN GRUPO DE SPRITES
+grupo_damage_text = pygame.sprite.Group()
 grupo_balas = pygame.sprite.Group()
+
 
 
 #DEFINIR LAS VARIABLES DE MOVIMIENTO DEL JUGADOR
@@ -118,6 +125,7 @@ while run == True:
 
     #ACTUALIZA EL ESTADO DEL JUGADOR
     Jugador.update()
+
     #ACTUALIZA EL ESTADO DEL ENEMIGO
     for ene in lista_enemigos:
         ene.update()
@@ -128,8 +136,13 @@ while run == True:
     if bala:
         grupo_balas.add(bala)
     for bala in grupo_balas:
-        bala.update(lista_enemigos)
+        damage, pos_damage = bala.update(lista_enemigos)
+        if damage:
+            damage_text = DamageText(pos_damage.centerx, pos_damage.centery, str(damage), font, Constantes.ROJO)
+            grupo_damage_text.add(damage_text)
 
+    #ACTUALIZAR DAÑO
+    grupo_damage_text.update()
 
 
     #DIBUJAR AL JUGADOR
@@ -147,6 +160,8 @@ while run == True:
     for bala in grupo_balas:
         bala.dibujar(ventana)
 
+    #DIBUJAMOS TEXTOS
+    grupo_damage_text.draw(ventana)
 
     for event in pygame.event.get():
         #PARA CERRAR EL JUEGO
