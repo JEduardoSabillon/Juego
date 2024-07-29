@@ -1,20 +1,22 @@
-#CLASE PERSONAJE
+# CLASE PERSONAJE
 
 import pygame
 import Constantes
 
+
 class Personaje():
-    def __init__(self, x, y, animaciones):
+    def __init__(self, x, y, animaciones, energia):
+        self.energia = energia
+        self.vivo = True
         self.flip = False
         self.animaciones = animaciones
-        #IMAGEN DE LA ANIMACION QUE SE ESTA MOSTRANDO ACTUALMENTE
+        # IMAGEN DE LA ANIMACION QUE SE ESTA MOSTRANDO ACTUALMENTE
         self.frame_index = 0
-        #AQUI SE ALMACENA LA HORA ACTUAL EN MILISEGUNDOS DESDE QUE SE INICIO PYGAME
+        # AQUI SE ALMACENA LA HORA ACTUAL EN MILISEGUNDOS DESDE QUE SE INICIO PYGAME
         self.update_time = pygame.time.get_ticks()
         self.image = animaciones[self.frame_index]
         self.forma = self.image.get_rect()
-        self.forma.center = (x,y)
-
+        self.forma.center = (x, y)
 
     def movimeinto(self, delta_x, delta_y):
         if delta_x < 0:
@@ -25,6 +27,11 @@ class Personaje():
         self.forma.y = self.forma.y + delta_y
 
     def update(self):
+        # COMPROBAR SI EL PERSONAJE HA MUERTO
+        if self.energia <= 0:
+            self.energia = 0
+            self.vivo = False
+
         cooldown_animacion = 100
         self.image = self.animaciones[self.frame_index]
         if pygame.time.get_ticks() - self.update_time >= cooldown_animacion:
@@ -33,8 +40,7 @@ class Personaje():
         if self.frame_index >= len(self.animaciones):
             self.frame_index = 0
 
-
     def dibujar(self, interfaz):
         imagen_flip = pygame.transform.flip(self.image, self.flip, False)
         interfaz.blit(imagen_flip, self.forma)
-        #pygame.draw.rect(interfaz, Constantes.COLOR_PERSONAJE,  self.forma, 1)
+        # pygame.draw.rect(interfaz, Constantes.COLOR_PERSONAJE,  self.forma, 1)

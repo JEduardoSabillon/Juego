@@ -4,6 +4,23 @@ import pygame
 import Constantes
 from Personaje import Personaje
 from weapons import Weapon
+import os
+
+#FUNCIONES:
+#ESCALAR IMAGENES
+def escalar_img(image, scale):
+    w = image.get_width()
+    h = image.get_height()
+    nueva_imagen = pygame.transform.scale(image, (w*scale, h*scale))
+    return nueva_imagen
+
+#FUNCION PARA CONTAR ELEMENTOS
+def contar_elementos(directorio):
+    return len(os.listdir(directorio))
+
+#FUNCION PARA LISTAR NOMBRES ELEMENTOS
+def nombres_carpetas(directorio):
+    return os.listdir(directorio)
 
 
 pygame.init()
@@ -11,39 +28,61 @@ ventana = pygame.display.set_mode((Constantes.ANCHO_VENTANA,
                                    Constantes.ALTO_VENTANA))
 pygame.display.set_caption("Mi Primer Juego")
 
-def escalar_img(image, scale):
-    w = image.get_width()
-    h = image.get_height()
-    nueva_imagen = pygame.transform.scale(image, (w*scale, h*scale))
-    return nueva_imagen
 
-#Importar imagenes
-#Personajes
+#IMPORTAR IMAGENES
+#PERSONAJE
 animaciones = []
 for i in range (7):
-    img = pygame.image.load(f"assets//images//characters//player//Player_{i}.png").convert_alpha()
+    img = pygame.image.load(f"assets//images//characters//player//Player_{i}.png")
     img = escalar_img(img, Constantes.SCALA_PERSONAJE)
     animaciones.append(img)
 
-#Arma
-imagen_pistola = pygame.image.load(f"assets//images//weapons//gun.png").convert_alpha()
+#ENEMIGOS
+directorio_enemigos = "assets//images//characters//enemies"
+tipo_enemigos = nombres_carpetas(directorio_enemigos)
+animaciones_enemigos = []
+for eni in tipo_enemigos:
+    lista_temp = []
+    ruta_temp = f"assets//images//characters//enemies//{eni}"
+    num_animaciones = contar_elementos(ruta_temp)
+    for i in range(num_animaciones):
+        img_enemigo = pygame.image.load(f"{ruta_temp}//{eni}_{i + 1}.png")
+        img_enemigo = escalar_img(img_enemigo, Constantes.SCALA_ENEMIGOS)
+        lista_temp.append(img_enemigo)
+    animaciones_enemigos.append(lista_temp)
+
+
+#ARMA
+imagen_pistola = pygame.image.load(f"assets//images//weapons//gun.png")
 imagen_pistola = escalar_img(imagen_pistola, Constantes.SCALA_ARMA)
 
-#Balas
-imagen_balas = pygame.image.load(f"assets//images//weapons//bala.png").convert_alpha()
+#BALAS
+imagen_balas = pygame.image.load(f"assets//images//weapons//bala.png")
 imagen_balas = escalar_img(imagen_balas, Constantes.SCALA_ARMA)
 
 
-#Crear un jugador de la clase personaje
-Jugador = Personaje(50, 50, animaciones)
+#CREAR UN JUGADOR DE LA CLASE PERSONAJE
+Jugador = Personaje(50, 50, animaciones, 100)
+
+#CREAR UN ENEMIGO DE LA CLASE PERSONAJE
+goblin = Personaje(400, 300, animaciones_enemigos[0], 100)
+honguito = Personaje(200, 200, animaciones_enemigos[1], 100)
+goblin_2 = Personaje(100, 250, animaciones_enemigos[0], 100)
+honguito_2 = Personaje(100, 150, animaciones_enemigos[1], 100)
+
+#CREAR UNA LISTA DE ENEMIGOS
+lista_enemigos = []
+lista_enemigos.append(goblin)
+lista_enemigos.append(goblin_2)
+lista_enemigos.append(honguito)
+lista_enemigos.append(honguito_2)
 
 
-#Crear una arma de la clase weapon
+#CREAR UN ARMA DE LA CLASE WEAPON
 pistola = Weapon(imagen_pistola, imagen_balas)
 
-#Crear un grupo de Sprite
+#CREAR UN GRUPO DE SPRITES
 grupo_balas = pygame.sprite.Group()
-
 
 
 #DEFINIR LAS VARIABLES DE MOVIMIENTO DEL JUGADOR
@@ -57,12 +96,8 @@ reloj = pygame.time.Clock()
 
 run = True
 while run == True:
-
-
-
     #QUE VAYA A 60 FPS
     reloj.tick(Constantes.FPS)
-
     ventana.fill(Constantes.COLOR_BG)
 
     #CALCULAR EL MOVIMIENTO DEL JUGADOR
@@ -78,33 +113,43 @@ while run == True:
     if mover_abajo == True:
         delta_y = Constantes.VELOCIDAD
 
-    # MVOVER ALL JUGADOR
+    #MVOVER ALL JUGADOR
     Jugador.movimeinto(delta_x, delta_y)
 
-    # Actualiza estado del jugador
+    #ACTUALIZA EL ESTADO DEL JUGADOR
     Jugador.update()
+    #ACTUALIZA EL ESTADO DEL ENEMIGO
+    for ene in lista_enemigos:
+        ene.update()
+        print(ene.energia)
 
-    # Actualiza el estado del arma
+    #ACTUALIZA EL ESTADO DEL ARMA
     bala = pistola.update(Jugador)
     if bala:
         grupo_balas.add(bala)
     for bala in grupo_balas:
-        bala.update()
-
-        print(grupo_balas)
+        bala.update(lista_enemigos)
 
 
-    # Dibijar al Jugador
+
+    #DIBUJAR AL JUGADOR
     Jugador.dibujar(ventana)
 
-    # Dibujar el Arma
+    # DIBUJAR AL JUGADOR
+    for ene in lista_enemigos:
+        ene.dibujar(ventana)
+
+    #DIBUJAR EL ARMA
     pistola.dibujar(ventana)
 
-    #Dibujar Bala
+
+    #DIBUJAR BALAS
     for bala in grupo_balas:
         bala.dibujar(ventana)
 
+
     for event in pygame.event.get():
+        #PARA CERRAR EL JUEGO
         if event.type == pygame.QUIT:
             run = False
 
