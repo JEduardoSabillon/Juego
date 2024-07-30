@@ -1,4 +1,4 @@
-#MAIN
+#CLASE MAIN
 
 import pygame
 import Constantes
@@ -23,7 +23,6 @@ def contar_elementos(directorio):
 def nombres_carpetas(directorio):
     return os.listdir(directorio)
 
-
 pygame.init()
 ventana = pygame.display.set_mode((Constantes.ANCHO_VENTANA,
                                    Constantes.ALTO_VENTANA))
@@ -31,8 +30,18 @@ pygame.display.set_caption("Mi Primer Juego")
 
 
 #FUENTES
-font = pygame.font.Font("assets//fonts//mago3.ttf", 25)
+font= pygame.font.Font("assets//fonts//mago3.ttf", 25)
 
+#IMPORTAR IMAGENES
+#ENERGIA
+corazon_vacio = pygame.image.load("assets//images//items//heart_empty.png")
+corazon_vacio = escalar_img(corazon_vacio, Constantes.SCALA_CORAZON)
+
+corazon_mitad = pygame.image.load("assets//images//items//heart_half.png")
+corazon_mitad = escalar_img(corazon_mitad, Constantes.SCALA_CORAZON)
+
+corazon_lleno = pygame.image.load("assets//images//items//heart_full.png")
+corazon_lleno = escalar_img(corazon_lleno, Constantes.SCALA_CORAZON)
 
 #IMPORTAR IMAGENES
 #PERSONAJE
@@ -62,9 +71,19 @@ imagen_pistola = pygame.image.load(f"assets//images//weapons//gun.png")
 imagen_pistola = escalar_img(imagen_pistola, Constantes.SCALA_ARMA)
 
 #BALAS
-imagen_balas = pygame.image.load(f"assets//images//weapons//bala.png")
+imagen_balas = pygame.image.load(f"assets//images//weapons//bullet.png")
 imagen_balas = escalar_img(imagen_balas, Constantes.SCALA_ARMA)
 
+def vida_jugador():
+    c_mitad_dibujado = False
+    for i in range(5):
+        if Jugador.energia >= ((i+1)*20):
+            ventana.blit(corazon_lleno, (5+i*50, 5))
+        elif Jugador.energia % 20 > 0 and c_mitad_dibujado == False:
+            ventana.blit(corazon_mitad, (5+i*50, 5))
+            c_mitad_dibujado = True
+        else:
+            ventana.blit(corazon_vacio, (5+i*50, 5))
 
 #CREAR UN JUGADOR DE LA CLASE PERSONAJE
 Jugador = Personaje(50, 50, animaciones, 100)
@@ -89,7 +108,6 @@ pistola = Weapon(imagen_pistola, imagen_balas)
 #CREAR UN GRUPO DE SPRITES
 grupo_damage_text = pygame.sprite.Group()
 grupo_balas = pygame.sprite.Group()
-
 
 
 #DEFINIR LAS VARIABLES DE MOVIMIENTO DEL JUGADOR
@@ -125,7 +143,6 @@ while run == True:
 
     #ACTUALIZA EL ESTADO DEL JUGADOR
     Jugador.update()
-
     #ACTUALIZA EL ESTADO DEL ENEMIGO
     for ene in lista_enemigos:
         ene.update()
@@ -145,6 +162,7 @@ while run == True:
     grupo_damage_text.update()
 
 
+
     #DIBUJAR AL JUGADOR
     Jugador.dibujar(ventana)
 
@@ -160,8 +178,13 @@ while run == True:
     for bala in grupo_balas:
         bala.dibujar(ventana)
 
-    #DIBUJAMOS TEXTOS
+
+    #DIBUJAR LOS CORAZONES
+    vida_jugador()
+
+    #DIBUJAR TEXTOS
     grupo_damage_text.draw(ventana)
+
 
     for event in pygame.event.get():
         #PARA CERRAR EL JUEGO

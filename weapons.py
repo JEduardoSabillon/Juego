@@ -68,7 +68,7 @@ class Weapon():
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, image, x, y, angle):
-        pygame.sprite.Sprite.__init__(self)
+        pygame.sprite.Sprite._init_(self)
         self.imagen_original = image
         self.angulo = angle
         self.image = pygame.transform.rotate(self.imagen_original, self.angulo)
@@ -96,8 +96,8 @@ class Bullet(pygame.sprite.Sprite):
                 enemigo.energia -= daño
                 self.kill()
                 break
-
         return daño, pos_daño
+
 
     def dibujar(self, interfaz):
         interfaz.blit(self.image, (self.rect.centerx,
