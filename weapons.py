@@ -68,7 +68,7 @@ class Weapon():
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, image, x, y, angle):
-        pygame.sprite.Sprite._init_(self)
+        pygame.sprite.Sprite.__init__(self)
         self.imagen_original = image
         self.angulo = angle
         self.image = pygame.transform.rotate(self.imagen_original, self.angulo)

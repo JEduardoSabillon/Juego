@@ -5,6 +5,7 @@ import Constantes
 from Personaje import Personaje
 from weapons import Weapon
 from textos import DamageText
+from items import Item
 import os
 
 #FUNCIONES:
@@ -74,6 +75,18 @@ imagen_pistola = escalar_img(imagen_pistola, Constantes.SCALA_ARMA)
 imagen_balas = pygame.image.load(f"assets//images//weapons//bullet.png")
 imagen_balas = escalar_img(imagen_balas, Constantes.SCALA_ARMA)
 
+#CARGAR IMAGENES DE LOS ITEMS
+posion_roja = pygame.image.load("assets//images//items//pocion.png")
+posion_roja = escalar_img(posion_roja, 3)
+
+coin_images = []
+ruta_img = "assets//images//items//coin"
+num_coin_images = contar_elementos(ruta_img)
+for i in range(num_coin_images):
+    img = pygame.image.load(f"assets//images//items//coin/coin_{i+1}.png")
+    img = escalar_img(img, 1)
+    coin_images.append(img)
+
 def vida_jugador():
     c_mitad_dibujado = False
     for i in range(5):
@@ -108,7 +121,14 @@ pistola = Weapon(imagen_pistola, imagen_balas)
 #CREAR UN GRUPO DE SPRITES
 grupo_damage_text = pygame.sprite.Group()
 grupo_balas = pygame.sprite.Group()
+grupo_items = pygame.sprite.Group()
 
+
+coin = Item(350,25, 0, coin_images)
+potion = Item(380,55, 1, [posion_roja])
+
+grupo_items.add(coin)
+grupo_items.add(potion)
 
 #DEFINIR LAS VARIABLES DE MOVIMIENTO DEL JUGADOR
 mover_arriba = False
@@ -161,7 +181,8 @@ while run == True:
     #ACTUALIZAR DAÑO
     grupo_damage_text.update()
 
-
+    #Actualizar Items
+    grupo_items.update()
 
     #DIBUJAR AL JUGADOR
     Jugador.dibujar(ventana)
@@ -184,6 +205,9 @@ while run == True:
 
     #DIBUJAR TEXTOS
     grupo_damage_text.draw(ventana)
+
+    #DIBUJAR ITEMS
+    grupo_items.draw(ventana)
 
 
     for event in pygame.event.get():
