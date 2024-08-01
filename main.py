@@ -8,6 +8,8 @@ from textos import DamageText
 from items import Item
 from mundo import Mundo
 import os
+import csv
+
 
 #FUNCIONES:
 #ESCALAR IMAGENES
@@ -112,14 +114,22 @@ def vida_jugador():
         else:
             ventana.blit(corazon_vacio, (5+i*50, 5))
 
-world_data = [
-    [16,0,0,0,0,0],
-    [16,17,17,17,17,17],
-    [16,17,17,17,17,17],
-    [16,17,17,17,17,17],
-    [16,17,17,17,17,17],
-    [16,17,17,17,17,17],
-]
+world_data = []
+
+for fila in range(Constantes.FILAS):
+    filas = [6] * Constantes.COLUMNAS
+    world_data.append(filas)
+
+#Cargar el archivo con niveles
+with open("niveles/Juego1.csv", newline='') as csvfile:
+    reader = csv.reader(csvfile, delimiter=',')
+    for x, fila in enumerate(reader):
+        for y, columna in enumerate(fila):
+            world_data[x][y] = int(columna)
+
+
+
+print(filas)
 
 world = Mundo()
 world.process_data(world_data, tile_list)
@@ -201,7 +211,7 @@ while run == True:
     #ACTUALIZA EL ESTADO DEL ENEMIGO
     for ene in lista_enemigos:
         ene.update()
-        print(ene.energia)
+
 
     #ACTUALIZA EL ESTADO DEL ARMA
     bala = pistola.update(Jugador)
