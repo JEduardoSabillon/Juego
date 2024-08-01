@@ -6,6 +6,7 @@ from Personaje import Personaje
 from weapons import Weapon
 from textos import DamageText
 from items import Item
+from mundo import Mundo
 import os
 
 #FUNCIONES:
@@ -35,13 +36,13 @@ font= pygame.font.Font("assets//fonts//mago3.ttf", 25)
 
 #IMPORTAR IMAGENES
 #ENERGIA
-corazon_vacio = pygame.image.load("assets//images//items//heart_empty.png")
+corazon_vacio = pygame.image.load("assets//images//items//heart_empty.png").convert_alpha()
 corazon_vacio = escalar_img(corazon_vacio, Constantes.SCALA_CORAZON)
 
-corazon_mitad = pygame.image.load("assets//images//items//heart_half.png")
+corazon_mitad = pygame.image.load("assets//images//items//heart_half.png").convert_alpha()
 corazon_mitad = escalar_img(corazon_mitad, Constantes.SCALA_CORAZON)
 
-corazon_lleno = pygame.image.load("assets//images//items//heart_full.png")
+corazon_lleno = pygame.image.load("assets//images//items//heart_full.png").convert_alpha()
 corazon_lleno = escalar_img(corazon_lleno, Constantes.SCALA_CORAZON)
 
 #IMPORTAR IMAGENES
@@ -68,12 +69,20 @@ for eni in tipo_enemigos:
 
 
 #ARMA
-imagen_pistola = pygame.image.load(f"assets//images//weapons//gun.png")
+imagen_pistola = pygame.image.load(f"assets//images//weapons//gun.png").convert_alpha()
 imagen_pistola = escalar_img(imagen_pistola, Constantes.SCALA_ARMA)
 
 #BALAS
-imagen_balas = pygame.image.load(f"assets//images//weapons//bullet.png")
+imagen_balas = pygame.image.load(f"assets//images//weapons//bullet.png").convert_alpha()
 imagen_balas = escalar_img(imagen_balas, Constantes.SCALA_ARMA)
+
+#CARGAR IMAGENES DEL MUNDO
+tile_list = []
+for x in range(Constantes.TILE_TYPES):
+    tile_image = pygame.image.load(f"assets//images//tiles//tile ({x+1}).png").convert_alpha()
+    tile_image = pygame.transform.scale(tile_image, (Constantes.TILE_SIZE, Constantes.TILE_SIZE))
+    tile_list.append(tile_image)
+
 
 #CARGAR IMAGENES DE LOS ITEMS
 posion_roja = pygame.image.load("assets//images//items//pocion.png")
@@ -87,19 +96,43 @@ for i in range(num_coin_images):
     img = escalar_img(img, 1)
     coin_images.append(img)
 
+
+def Dibujar_texto(texto, fuente, color, x, y):
+    img = fuente.render(texto, True, color)
+    ventana.blit(img, (x, y))
+
 def vida_jugador():
     c_mitad_dibujado = False
     for i in range(5):
-        if Jugador.energia >= ((i+1)*20):
+        if Jugador.energia >= ((i+1)*25):
             ventana.blit(corazon_lleno, (5+i*50, 5))
-        elif Jugador.energia % 20 > 0 and c_mitad_dibujado == False:
+        elif Jugador.energia % 25 > 0 and c_mitad_dibujado == False:
             ventana.blit(corazon_mitad, (5+i*50, 5))
             c_mitad_dibujado = True
         else:
             ventana.blit(corazon_vacio, (5+i*50, 5))
 
+world_data = [
+    [16,0,0,0,0,0],
+    [16,17,17,17,17,17],
+    [16,17,17,17,17,17],
+    [16,17,17,17,17,17],
+    [16,17,17,17,17,17],
+    [16,17,17,17,17,17],
+]
+
+world = Mundo()
+world.process_data(world_data, tile_list)
+
+
+def dibujar_grid():
+    for x in range(30):
+        pygame.draw.line(ventana, Constantes.BLANCO, (x*Constantes.TILE_SIZE, 0), (x*Constantes.TILE_SIZE, Constantes.ALTO_VENTANA))
+        pygame.draw.line(ventana, Constantes.BLANCO, (0, x * Constantes.TILE_SIZE), (Constantes.ANCHO_VENTANA, x * Constantes.TILE_SIZE))
+
+
 #CREAR UN JUGADOR DE LA CLASE PERSONAJE
-Jugador = Personaje(50, 50, animaciones, 100)
+Jugador = Personaje(50, 50, animaciones, 20)
 
 #CREAR UN ENEMIGO DE LA CLASE PERSONAJE
 goblin = Personaje(400, 300, animaciones_enemigos[0], 100)
@@ -145,6 +178,8 @@ while run == True:
     reloj.tick(Constantes.FPS)
     ventana.fill(Constantes.COLOR_BG)
 
+    dibujar_grid()
+
     #CALCULAR EL MOVIMIENTO DEL JUGADOR
     delta_x = 0
     delta_y = 0
@@ -182,7 +217,10 @@ while run == True:
     grupo_damage_text.update()
 
     #Actualizar Items
-    grupo_items.update()
+    grupo_items.update(Jugador)
+
+    # DIBUJAR MUNDO
+    world.draw(ventana)
 
     #DIBUJAR AL JUGADOR
     Jugador.dibujar(ventana)
@@ -205,6 +243,7 @@ while run == True:
 
     #DIBUJAR TEXTOS
     grupo_damage_text.draw(ventana)
+    Dibujar_texto(f"Score: {Jugador.score}", font, (255, 255, 0), 700, 5)
 
     #DIBUJAR ITEMS
     grupo_items.draw(ventana)
