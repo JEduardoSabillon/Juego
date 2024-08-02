@@ -120,16 +120,22 @@ for fila in range(Constantes.FILAS):
     filas = [6] * Constantes.COLUMNAS
     world_data.append(filas)
 
-#Cargar el archivo con niveles
-with open("niveles/Juego1.csv", newline='') as csvfile:
-    reader = csv.reader(csvfile, delimiter=',')
-    for x, fila in enumerate(reader):
-        for y, columna in enumerate(fila):
-            world_data[x][y] = int(columna)
+    # Cargar el archivo con niveles
+    # Asegúrate de que world_data tenga suficientes filas y columnas
+    # (ajusta esto según tus necesidades)
+    num_filas = 10
+    num_columnas = 10
+    world_data = [[0] * num_columnas for _ in range(num_filas)]
 
+    with open("niveles/nivel_test.csv", newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter=';')
+        for x, fila in enumerate(reader):
+            for y, columna in enumerate(fila):
+                try:
+                    world_data[x][y] = int(columna)
+                except IndexError:
+                    print(f"Índices fuera de rango: x={x}, y={y}")
 
-
-print(filas)
 
 world = Mundo()
 world.process_data(world_data, tile_list)
