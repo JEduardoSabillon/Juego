@@ -119,20 +119,32 @@ def vida_jugador():
         else:
             ventana.blit(corazon_vacio, (5+i*50, 5))
 
+def resetear_Mundo():
+    grupo_damage_text.empty()
+    grupo_balas.empty()
+    grupo_items.empty()
+
+    # CRAR LISTA DE TILE VACIA
+    data = []
+    for fila in range(Constantes.FILAS):
+        filas = [2] * Constantes.COLUMNAS
+        data.append(fila)
+
+    return data
+
 world_data = []
 
 for fila in range(Constantes.FILAS):
     filas = [5] * Constantes.COLUMNAS
     world_data.append(filas)
 
-with open("niveles/nivel_test.csv", newline='') as csvfile:
+with open("niveles/nivel_1.csv", newline='') as csvfile:
     reader = csv.reader(csvfile, delimiter=',')
     for x, fila in enumerate(reader):
         for y, columna in enumerate(fila):
             world_data[x][y] = int(columna)
-
 world = Mundo()
-world.process_data(world_data, tile_list, item_imagenes)
+world.process_data(world_data, tile_list, item_imagenes, animaciones_enemigos)
 
 def dibujar_grid():
     for x in range(30):
@@ -143,18 +155,12 @@ def dibujar_grid():
 #CREAR UN JUGADOR DE LA CLASE PERSONAJE
 Jugador = Personaje(50, 50, animaciones, 20, 1)
 
-#CREAR UN ENEMIGO DE LA CLASE PERSONAJE
-goblin = Personaje(400, 300, animaciones_enemigos[0], 100, 2)
-honguito = Personaje(200, 200, animaciones_enemigos[1], 100, 2)
-goblin_2 = Personaje(100, 250, animaciones_enemigos[0], 100, 2)
-honguito_2 = Personaje(100, 150, animaciones_enemigos[1], 100, 2 )
+
 
 #CREAR UNA LISTA DE ENEMIGOS
 lista_enemigos = []
-lista_enemigos.append(goblin)
-lista_enemigos.append(goblin_2)
-lista_enemigos.append(honguito)
-lista_enemigos.append(honguito_2)
+for ene in world.lista_enemigo:
+    lista_enemigos.append(ene)
 
 
 #CREAR UN ARMA DE LA CLASE WEAPON
@@ -182,9 +188,8 @@ run = True
 while run == True:
     #QUE VAYA A 60 FPS
     reloj.tick(Constantes.FPS)
-    ventana.fill(Constantes.COLOR_BG)
+    ventana.fill(Constantes.MORADO)
 
-    dibujar_grid()
 
     #CALCULAR EL MOVIMIENTO DEL JUGADOR
     delta_x = 0
@@ -200,8 +205,9 @@ while run == True:
         delta_y = Constantes.VELOCIDAD
 
     #MOVER ALL JUGADOR
-    posicion_pantalla = Jugador.movimeinto(delta_x, delta_y)
-    print(posicion_pantalla)
+    posicion_pantalla, nivel_Completado = Jugador.movimeinto(delta_x, delta_y, world.obstaculos_tiles,
+                                           world.exit_tile)
+
 
     #ACTUALIZAR MAPA
     world.update(posicion_pantalla)
@@ -218,7 +224,7 @@ while run == True:
     if bala:
         grupo_balas.add(bala)
     for bala in grupo_balas:
-        damage, pos_damage = bala.update(lista_enemigos)
+        damage, pos_damage = bala.update(lista_enemigos, world.obstaculos_tiles)
         if damage:
             damage_text = DamageText(pos_damage.centerx, pos_damage.centery, str(damage), font, Constantes.ROJO)
             grupo_damage_text.add(damage_text)
@@ -237,8 +243,12 @@ while run == True:
 
     # DIBUJAR AL ENEMIGO
     for ene in lista_enemigos:
-        ene.enemigos(posicion_pantalla)
-        ene.dibujar(ventana)
+        if ene.energia == 0:
+            lista_enemigos.remove(ene)
+        if ene.energia > 0:
+            ene.enemigos(Jugador, world.obstaculos_tiles, posicion_pantalla,
+                         world.exit_tile)
+            ene.dibujar(ventana)
 
     #DIBUJAR EL ARMA
     pistola.dibujar(ventana)
@@ -262,6 +272,23 @@ while run == True:
     #DIBUJAR ITEMS
     grupo_items.draw(ventana)
 
+    #CHEQUEAR SI EL NIVEL ESTA COMPLETADO
+    if nivel_Completado == True:
+        nivel +=1
+        world_data = resetear_Mundo()
+        #CARGAR EL ARCHIVO CON EL NIVEL
+        with open(f"niveles/nivel_{nivel}.csv", newline='') as csvfile:
+            reader = csv.reader(csvfile, delimiter=',')
+            for x, fila in enumerate(reader):
+                for y, columna in enumerate(fila):
+                    try:
+                        world_data[x][y] = int(columna)
+                    except ValueError:
+                        # Manejo de errores si no se puede convertir a entero
+                        print(f"Error: No se pudo convertir '{columna}' a entero en la posición ({x}, {y})")
+
+        world = Mundo()
+        world.process_data(world_data, tile_list, item_imagenes, animaciones_enemigos)
 
     for event in pygame.event.get():
         #PARA CERRAR EL JUEGO
@@ -277,6 +304,9 @@ while run == True:
                 mover_arriba = True
             if event.key == pygame.K_s:
                 mover_abajo = True
+            if event.key == pygame.K_e:
+                if world.cambiar_puerta(Jugador, tile_list):
+                    print("puerta cambiada")
 
 
         #PARA CUANDO SE SUELTA LA TECLA
