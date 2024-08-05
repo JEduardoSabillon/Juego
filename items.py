@@ -11,7 +11,11 @@ class Item(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = (x,y)
 
-    def update(self, personaje):
+    def update(self, posicion_pantalla, personaje):
+        #Reposicionar Items
+        self.rect.x += posicion_pantalla[0]
+        self.rect.y += posicion_pantalla[1]
+
         #comprobar la colicion entre el personaje y los items
         if self.rect.colliderect(personaje.forma):
             #Moneda
