@@ -3,7 +3,7 @@ import Constantes
 from items import Item
 from Personaje import Personaje
 
-obstaculos = [0, 1, 2, 3, 4, 5, 41, 10, 20, 30, 35, 54, 55, 35, 15, 26, 84, 95, 49, 59, 66, 67]
+obstaculos = [0, 1, 2, 3, 4, 5, 41, 10, 20, 30, 35, 54, 55, 35, 15, 26, 84, 95, 49, 59, 66, 67, 36, 37, 46]
 puerta_cerrada = [36, 37, 66, 67]
 
 class Mundo():

@@ -28,6 +28,8 @@ def nombres_carpetas(directorio):
     return os.listdir(directorio)
 
 pygame.init()
+pygame.mixer.init()
+
 ventana = pygame.display.set_mode((Constantes.ANCHO_VENTANA,
                                    Constantes.ALTO_VENTANA))
 pygame.display.set_caption("Mi Primer Juego")
@@ -60,11 +62,11 @@ def pantalla_inicio():
     ventana.fill(Constantes.MORADO)
     Dibujar_texto("Mi primer jugo", font_titulo, Constantes.BLANCO,
                   Constantes.ANCHO_VENTANA / 2 - 200,
-                  Constantes.ALTO_VENTANA / 2 + 200)
+                  Constantes.ALTO_VENTANA / 5 + 20)
     pygame.draw.rect(ventana, Constantes.AMARILLO, boton_jugar)
     pygame.draw.rect(ventana, Constantes.ROJO, boton_salir)
-    ventana.blit(texto_boton_jugar, (boton_jugar.x + 50, boton_jugar.y + 10))
-    ventana.blit(texto_boton_salir, (boton_jugar.x + 50, boton_salir.y + 10))
+    ventana.blit(texto_boton_jugar, (boton_jugar.x + 70, boton_jugar.y + 10))
+    ventana.blit(texto_boton_salir, (boton_jugar.x + 70, boton_salir.y + 10))
     pygame.display.update()
 
 
@@ -83,7 +85,7 @@ corazon_lleno = escalar_img(corazon_lleno, Constantes.SCALA_CORAZON)
 #PERSONAJE
 animaciones = []
 for i in range (7):
-    img = pygame.image.load(f"assets//images//characters//player//Player_{i}.png")
+    img = pygame.image.load(f"assets//images//characters//player//Player_{i}.png").convert_alpha()
     img = escalar_img(img, Constantes.SCALA_PERSONAJE)
     animaciones.append(img)
 
@@ -139,13 +141,13 @@ def Dibujar_texto(texto, fuente, color, x, y):
 def vida_jugador():
     c_mitad_dibujado = False
     for i in range(5):
-        if Jugador.energia >= ((i+50)*25):
+        if Jugador.energia >= ((i+1)*20):
             ventana.blit(corazon_lleno, (5+i*50, 5))
-        elif Jugador.energia % 25 > 0 and c_mitad_dibujado == False:
+        elif Jugador.energia % 20 > 0 and c_mitad_dibujado == False:
             ventana.blit(corazon_mitad, (5+i*50, 5))
             c_mitad_dibujado = True
         else:
-            ventana.blit(corazon_vacio, (5+i*50, 5))
+            ventana.blit(corazon_vacio, (5 + i * 50, 5))
 
 def resetear_Mundo():
     grupo_damage_text.empty()
@@ -156,7 +158,7 @@ def resetear_Mundo():
     data = []
     for fila in range(Constantes.FILAS):
         filas = [2] * Constantes.COLUMNAS
-        data.append(fila)
+        data.append(filas)
 
     return data
 
@@ -189,6 +191,7 @@ for ene in world.lista_enemigo:
     lista_enemigos.append(ene)
 
 
+
 #CREAR UN ARMA DE LA CLASE WEAPON
 pistola = Weapon(imagen_pistola, imagen_balas)
 
@@ -214,12 +217,25 @@ reloj = pygame.time.Clock()
 boton_reinicio = pygame.Rect(Constantes.ANCHO_VENTANA / 2 - 100,
                              Constantes.ALTO_VENTANA / 2 + 100, 200, 50)
 
+pygame.mixer.music.load("assets/Musica/Cancion2.mp3")
+pygame.mixer.music.play()
+
+sonido_disparo = pygame.mixer.Sound("assets/Musica/Disparo.mp3")
+
+
 mostrar_inicio = True
 run = True
 while run == True:
-
     if mostrar_inicio:
         pantalla_inicio()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if boton_jugar.collidepoint(event.pos):
+                    mostrar_inicio = False
+                if boton_salir.collidepoint(event.pos):
+                    run = False
     else:
         #QUE VAYA A 60 FPS
         reloj.tick(Constantes.FPS)
@@ -257,6 +273,7 @@ while run == True:
             bala = pistola.update(Jugador)
             if bala:
                 grupo_balas.add(bala)
+                sonido_disparo.play()
             for bala in grupo_balas:
                 damage, pos_damage = bala.update(lista_enemigos, world.obstaculos_tiles)
                 if damage:
@@ -374,6 +391,7 @@ while run == True:
                 if event.key == pygame.K_s:
                     mover_abajo = False
 
+        #REINICIO DEL JUEGO
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if boton_reinicio.collidepoint(event.pos) and not Jugador.vivo:
                     Jugador.vivo = True
@@ -384,7 +402,6 @@ while run == True:
                     with open(f"niveles/nivel_{nivel}.csv", newline='') as csvfile:
                         reader = csv.reader(csvfile, delimiter=',')
                         for x, fila in enumerate(reader):
-                            # Asegúrate de que world_data sea una lista de listas adecuada
                             world_data.append([int(columna) for columna in fila])
                     world = Mundo()
                     world.process_data(world_data, tile_list, item_imagenes, animaciones_enemigos)
