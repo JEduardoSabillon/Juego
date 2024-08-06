@@ -21,6 +21,9 @@ class Personaje():
         self.golpe = False
         self.ultimo_golpe = pygame.time.get_ticks()
 
+    def actualizar_coordenadas(self, tupla):
+        self.forma.center = (tupla[0], tupla[1])
+
     def movimeinto(self, delta_x, delta_y, obstaculos_tiles, exit_tile):
         posicion_pantalla = [0,0]
         nivel_Completado = False
