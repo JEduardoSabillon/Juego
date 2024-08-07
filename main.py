@@ -9,6 +9,7 @@ from items import Item
 from mundo import Mundo
 import os
 import csv
+import random
 
 
 #FUNCIONES:
@@ -18,6 +19,7 @@ def escalar_img(image, scale):
     h = image.get_height()
     nueva_imagen = pygame.transform.scale(image, (w*scale, h*scale))
     return nueva_imagen
+
 
 #FUNCION PARA CONTAR ELEMENTOS
 def contar_elementos(directorio):
@@ -134,9 +136,18 @@ for i in range(num_coin_images):
 
 item_imagenes = [coin_images, [posion_roja]]
 
+# Cargar imagen de sangre
+imagen_sangre = pygame.image.load("assets/images/effects/blood_splash.png").convert_alpha()
+imagen_sangre = escalar_img(imagen_sangre, 2)  # Ajusta la escala según sea necesario
+
+
+# Función para dibujar la sangre en la pantalla
+
 def Dibujar_texto(texto, fuente, color, x, y):
     img = fuente.render(texto, True, color)
     ventana.blit(img, (x, y))
+
+
 
 def vida_jugador():
     c_mitad_dibujado = False
@@ -161,6 +172,7 @@ def resetear_Mundo():
         data.append(filas)
 
     return data
+
 
 world_data = []
 
@@ -220,6 +232,9 @@ boton_reinicio = pygame.Rect(Constantes.ANCHO_VENTANA / 2 - 100,
 pygame.mixer.music.load("assets/Musica/Cancion2.mp3")
 pygame.mixer.music.play()
 
+
+
+
 sonido_disparo = pygame.mixer.Sound("assets/Musica/Disparo.mp3")
 
 
@@ -232,10 +247,13 @@ while run == True:
             if event.type == pygame.QUIT:
                 run = False
             if event.type == pygame.MOUSEBUTTONDOWN:
+                pygame.mixer.music.load("assets/Musica/Cancion1.mp3")
+                pygame.mixer.music.play(-1)
                 if boton_jugar.collidepoint(event.pos):
                     mostrar_inicio = False
                 if boton_salir.collidepoint(event.pos):
                     run = False
+
     else:
         #QUE VAYA A 60 FPS
         reloj.tick(Constantes.FPS)
@@ -289,6 +307,9 @@ while run == True:
         # DIBUJAR MUNDO
         world.draw(ventana)
 
+        #DIBUJAR niebla
+        Mundo.draw_fog(ventana)
+
         #DIBUJAR AL JUGADOR
         Jugador.dibujar(ventana)
 
@@ -322,6 +343,9 @@ while run == True:
 
         #DIBUJAR ITEMS
         grupo_items.draw(ventana)
+
+        #Dibujar Rayos
+
 
 
         def resetear_Mundo():
@@ -361,6 +385,7 @@ while run == True:
             ventana.blit(texto_boton_reinicio,
                          (boton_reinicio.x + 30, boton_reinicio.y + 10))
 
+
         for event in pygame.event.get():
             #PARA CERRAR EL JUEGO
             if event.type == pygame.QUIT:
@@ -395,6 +420,8 @@ while run == True:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if boton_reinicio.collidepoint(event.pos) and not Jugador.vivo:
                     Jugador.vivo = True
+                    pygame.mixer.music.load("assets/Musica/Cancion1.mp3")
+                    pygame.mixer.music.play(-1)  # Reproducir la música de inicio
                     Jugador.energia = 100
                     Jugador.score = 0
                     nivel = 1

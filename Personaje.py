@@ -21,6 +21,7 @@ class Personaje():
         self.golpe = False
         self.ultimo_golpe = pygame.time.get_ticks()
 
+
     def actualizar_coordenadas(self, tupla):
         self.forma.center = (tupla[0], tupla[1])
 

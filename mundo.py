@@ -1,10 +1,12 @@
 import pygame
 import Constantes
+import random
 from items import Item
 from Personaje import Personaje
 
 obstaculos = [0, 1, 2, 3, 4, 5, 41, 10, 20, 30, 35, 54, 55, 35, 15, 26, 84, 95, 49, 59, 66, 67, 36, 37, 46]
 puerta_cerrada = [36, 37, 66, 67]
+
 
 class Mundo():
     def __init__(self):
@@ -14,6 +16,15 @@ class Mundo():
         self.lista_item = []
         self.lista_enemigo = []
         self.puertas_cerradas_tiles = []
+
+    def draw_fog(surface):
+        fog_color = (200, 200, 200)  # Light gray color
+        fog_alpha = 60  # Transparency level
+        fog_surface = pygame.Surface((Constantes.ANCHO_VENTANA, Constantes.ALTO_VENTANA))
+        fog_surface.set_alpha(fog_alpha)
+        fog_surface.fill(fog_color)
+        surface.blit(fog_surface, (0, 0))
+
 
     def process_data(self, data, tile_list, item_imagenes, animaciones_enemigos):
         self.level_length = len(data)
